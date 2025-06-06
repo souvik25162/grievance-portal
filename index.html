@@ -1,58 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Grievance Portal</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
-    label { display: block; margin-top: 10px; }
-    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Grievance Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fce4ec;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #c2185b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #d81b60;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f06292;
+            color: white;
+        }
+        .summary {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #880e4f;
+        }
+    </style>
 </head>
 <body>
-  <h1>Grievance Portal</h1>
-  <form id="grievanceForm">
-    <label for="name">Your Name:</label>
-    <input type="text" id="name" required />
+    <h1>Grievance Dashboard</h1>
+    <div class="summary" id="summary"></div>
+    <table id="complaintsTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Severity</th>
+                <th>Compensation</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-    <label for="complaint">Complaint / Grievance:</label>
-    <textarea id="complaint" rows="4" required></textarea>
+    <script>
+        const complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+        const tableBody = document.querySelector("#complaintsTable tbody");
+        let totalSeverity = 0;
+        let totalComplaints = complaints.length;
 
-    <label for="compensation">Compensation for this mistake:</label>
-    <input type="text" id="compensation" placeholder="e.g. Dinner, Movie, Hug" required />
+        complaints.forEach(c => {
+            const row = document.createElement("tr");
+            row.innerHTML = 
+                <td>${c.date}</td>
+                <td>${c.title}</td>
+                <td>${c.category}</td>
+                <td>${c.severity}</td>
+                <td>${c.compensation}</td>
+            ;
+            tableBody.appendChild(row);
+            totalSeverity += parseInt(c.severity);
+        });
 
-    <button type="submit">Submit Grievance</button>
-  </form>
-
-  <script>
-    document.getElementById('grievanceForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const complaint = document.getElementById('complaint').value.trim();
-      const compensation = document.getElementById('compensation').value.trim();
-
-      if (!name || !complaint || !compensation) {
-        alert('Please fill all fields');
-        return;
-      }
-
-      // Save grievances in localStorage
-      let grievances = JSON.parse(localStorage.getItem('grievances') || '[]');
-      grievances.push({
-        id: Date.now(),
-        name,
-        complaint,
-        compensation,
-        solved: false
-      });
-      localStorage.setItem('grievances', JSON.stringify(grievances));
-      alert('Grievance submitted successfully!');
-
-      // Clear form
-      this.reset();
-    });
-  </script>
+        const summary = document.getElementById("summary");
+        if (totalComplaints > 0) {
+            summary.textContent = Total Complaints: ${totalComplaints} | Average Severity: ${(totalSeverity / totalComplaints).toFixed(2)};
+        } else {
+            summary.textContent = "No complaints submitted yet.";
+        }
+    </script>
 </body>
 </html>
