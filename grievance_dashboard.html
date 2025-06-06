@@ -1,85 +1,156 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Grievance Dashboard</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #fce4ec;
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #c2185b;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #d81b60;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f06292;
-            color: white;
-        }
-        .summary {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #880e4f;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Grievance Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff0f5;
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #c2185b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #f48fb1;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f06292;
+      color: white;
+    }
+    .summary {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #880e4f;
+    }
+    .status-toggle {
+      background-color: #ffe4ec;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      color: #d81b60;
+      cursor: pointer;
+    }
+    .status-toggle:hover {
+      background-color: #f8bbd0;
+    }
+    .download-btn {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #f06292;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .download-btn:hover {
+      background-color: #e91e63;
+    }
+  </style>
 </head>
 <body>
-    <h1>Grievance Dashboard</h1>
-    <div class="summary" id="summary"></div>
-    <table id="complaintsTable">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Severity</th>
-                <th>Compensation</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+  <h1>Grievance Dashboard 💌</h1>
+  <div class="summary" id="summary"></div>
 
-    <script>
-        const complaints = JSON.parse(localStorage.getItem("complaints")) || [];
-        const tableBody = document.querySelector("#complaintsTable tbody");
-        let totalSeverity = 0;
-        let totalComplaints = complaints.length;
+  <table id="complaintsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Category</th>
+        <th>What Happened?</th>
+        <th>Severity</th>
+        <th>Compensation</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-        complaints.forEach(c => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${c.date}</td>
-                <td>${c.title}</td>
-                <td>${c.category}</td>
-                <td>${c.severity}</td>
-                <td>${c.compensation}</td>
-            `;
-            tableBody.appendChild(row);
-            totalSeverity += parseInt(c.severity);
-        });
+  <button class="download-btn" onclick="downloadCSV()">⬇️ Download All Complaints (CSV)</button>
 
-        const summary = document.getElementById("summary");
-        if (totalComplaints > 0) {
-            summary.textContent = `Total Complaints: ${totalComplaints} | Average Severity: ${(totalSeverity / totalComplaints).toFixed(2)}`;
-        } else {
-            summary.textContent = "No complaints submitted yet.";
-        }
-    </script>
+  <script>
+    const complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+    const tableBody = document.querySelector("#complaintsTable tbody");
+    let totalSeverity = 0;
+
+    complaints.forEach((c, index) => {
+      const row = document.createElement("tr");
+      const status = c.status || "Unsolved";
+
+      row.innerHTML = `
+        <td>${c.name || '-'}</td>
+        <td>${c.date || '-'}</td>
+        <td>${c.category || '-'}</td>
+        <td>${c.title || '-'}</td>
+        <td>${c.severity || '-'}</td>
+        <td>${c.compensation || '-'}</td>
+        <td>
+          <button class="status-toggle" onclick="toggleStatus(${index})">
+            ${status}
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+      totalSeverity += parseInt(c.severity || 0);
+    });
+
+    const summary = document.getElementById("summary");
+    const totalComplaints = complaints.length;
+    if (totalComplaints > 0) {
+      summary.textContent = `Total Complaints: ${totalComplaints} 💢 | Average Severity: ${(totalSeverity / totalComplaints).toFixed(2)}`;
+    } else {
+      summary.textContent = "No complaints submitted yet. She's being sweet today 😊";
+    }
+
+    function toggleStatus(index) {
+      complaints[index].status = complaints[index].status === "Solved" ? "Unsolved" : "Solved";
+      localStorage.setItem("complaints", JSON.stringify(complaints));
+      location.reload();
+    }
+
+    function downloadCSV() {
+      if (complaints.length === 0) {
+        alert("No complaints to download.");
+        return;
+      }
+
+      const headers = ["Name", "Date", "Category", "What Happened?", "Severity", "Compensation", "Status"];
+      const rows = complaints.map(c => [
+        c.name || "",
+        c.date || "",
+        c.category || "",
+        c.title || "",
+        c.severity || "",
+        c.compensation || "",
+        c.status || "Unsolved"
+      ]);
+
+      let csvContent = "data:text/csv;charset=utf-8,"
+        + headers.join(",") + "\n"
+        + rows.map(e => e.map(v => `"${v}"`).join(",")).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "grievance_log.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
 </body>
 </html>
