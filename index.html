@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grievance Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
+    label { display: block; margin-top: 10px; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>Grievance Portal</h1>
+  <form id="grievanceForm">
+    <label for="name">Your Name:</label>
+    <input type="text" id="name" required />
+
+    <label for="complaint">Complaint / Grievance:</label>
+    <textarea id="complaint" rows="4" required></textarea>
+
+    <label for="compensation">Compensation for this mistake:</label>
+    <input type="text" id="compensation" placeholder="e.g. Dinner, Movie, Hug" required />
+
+    <button type="submit">Submit Grievance</button>
+  </form>
+
+  <script>
+    document.getElementById('grievanceForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const complaint = document.getElementById('complaint').value.trim();
+      const compensation = document.getElementById('compensation').value.trim();
+
+      if (!name || !complaint || !compensation) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      // Save grievances in localStorage
+      let grievances = JSON.parse(localStorage.getItem('grievances') || '[]');
+      grievances.push({
+        id: Date.now(),
+        name,
+        complaint,
+        compensation,
+        solved: false
+      });
+      localStorage.setItem('grievances', JSON.stringify(grievances));
+      alert('Grievance submitted successfully!');
+
+      // Clear form
+      this.reset();
+    });
+  </script>
+</body>
+</html>
