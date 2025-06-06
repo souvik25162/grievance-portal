@@ -2,26 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Grievance Portal</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
-    label { display: block; margin-top: 10px; }
-    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffe4ec;
+      margin: 0;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255, 20, 147, 0.2);
+    }
+    h1 {
+      color: #c2185b;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #880e4f;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #f48fb1;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #fff0f5;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #f06292;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ec407a;
+    }
   </style>
 </head>
 <body>
-  <h1>Grievance Portal</h1>
+  <h1>💔 Girlfriend Grievance Portal 💔</h1>
   <form id="grievanceForm">
     <label for="name">Your Name:</label>
     <input type="text" id="name" required />
 
-    <label for="complaint">Complaint / Grievance:</label>
+    <label for="date">Date:</label>
+    <input type="date" id="date" required />
+
+    <label for="type">Type of Complaint:</label>
+    <select id="type" required>
+      <option value="">-- Select --</option>
+      <option value="Ignored Text">Ignored Text</option>
+      <option value="Late Reply">Late Reply</option>
+      <option value="Forgot Anniversary">Forgot Anniversary</option>
+      <option value="Didn’t Call Back">Didn’t Call Back</option>
+      <option value="General Misbehavior">General Misbehavior</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="complaint">What Happened?</label>
     <textarea id="complaint" rows="4" required></textarea>
 
-    <label for="compensation">Compensation for this mistake:</label>
-    <input type="text" id="compensation" placeholder="e.g. Dinner, Movie, Hug" required />
+    <label for="compensation">Suggested Compensation 💅:</label>
+    <input type="text" id="compensation" placeholder="e.g. Spa day, Shopping, Movie night" required />
 
     <button type="submit">Submit Grievance</button>
   </form>
@@ -30,25 +82,27 @@
     document.getElementById('grievanceForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
+      const date = document.getElementById('date').value;
+      const type = document.getElementById('type').value;
       const complaint = document.getElementById('complaint').value.trim();
       const compensation = document.getElementById('compensation').value.trim();
 
-      if (!name || !complaint || !compensation) {
-        alert('Please fill all fields');
+      if (!name || !date || !type || !complaint || !compensation) {
+        alert('Please fill out all fields!');
         return;
       }
 
       let complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
       complaints.push({
-        date: new Date().toLocaleDateString(),
+        name,
+        date,
+        category: type,
         title: complaint,
-        category: 'General',
-        severity: Math.floor(Math.random() * 5) + 1,
         compensation,
-        name
+        severity: Math.floor(Math.random() * 5) + 1
       });
       localStorage.setItem('complaints', JSON.stringify(complaints));
-      alert('Grievance submitted successfully!');
+      alert('Grievance submitted successfully! 💖');
       this.reset();
     });
   </script>
