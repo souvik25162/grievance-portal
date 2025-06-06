@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grievance Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fff0f5;
+            padding: 20px;
+            max-width: 950px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #d81b60;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ec407a;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f06292;
+            color: white;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #d81b60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ad1457;
+        }
+        .resolved {
+            text-decoration: line-through;
+            background-color: #e0e0e0;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            color: #d81b60;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Grievance Dashboard</h1>
+    <div class="summary" id="summary"></div>
+    <table id="complaintsTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Severity</th>
+                <th>Compensation</th>
+                <th>Status</th>
+                <th>Toggle</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+        complaints = complaints.map(c => ({ ...c, resolved: c.resolved === "true" || c.resolved === true }));
+
+        function saveAndReload() {
+            localStorage.setItem("complaints", JSON.stringify(complaints));
+            location.reload();
+        }
+
+        const tableBody = document.querySelector("#complaintsTable tbody");
+        let totalSeverity = 0;
+        let totalComplaints = complaints.length;
+
+        complaints.forEach((c, index) => {
+            const row = document.createElement("tr");
+            if (c.resolved) row.classList.add("resolved");
+            row.innerHTML = `
+                <td>${c.name || 'Anonymous'}</td>
+                <td>${c.date}</td>
+                <td>${c.title}</td>
+                <td>${c.category}</td>
+                <td>${c.severity}</td>
+                <td>${c.compensation || '-'}</td>
+                <td>${c.resolved ? "Resolved" : "Unresolved"}</td>
+                <td><span class="toggle-btn" onclick="toggleStatus(${index})">${c.resolved ? "Mark Unresolved" : "Mark Resolved"}</span></td>
+            `;
+            tableBody.appendChild(row);
+            totalSeverity += parseInt(c.severity);
+        });
+
+        document.getElementById("summary").innerText = totalComplaints > 0 ?
+            `Total Complaints: ${totalComplaints} | Average Severity: ${(totalSeverity / totalComplaints).toFixed(2)}` :
+            "No complaints submitted yet.";
+
+        window.toggleStatus = function(index) {
+            complaints[index].resolved = !complaints[index].resolved;
+            saveAndReload();
+        };
+    </script>
+</body>
+</html>
